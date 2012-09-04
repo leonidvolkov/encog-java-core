@@ -1,6 +1,8 @@
 package org.encog.app.generate.generators.java;
 
+import org.encog.app.generate.GenerationError;
 import org.encog.app.generate.generators.AbstractGenerator;
+import org.encog.app.generate.program.EncogArgType;
 import org.encog.app.generate.program.EncogProgram;
 import org.encog.app.generate.program.EncogProgramNode;
 import org.encog.app.generate.program.EncogTreeNode;
@@ -26,8 +28,41 @@ public class GenerateEncogJava extends AbstractGenerator {
 	}
 	
 	private void generateConst(EncogProgramNode node) {
-		addLine("public static final ");
+		boolean quote = false;
+		StringBuilder line = new StringBuilder();
+		String t = node.getArgs().get(1).getValue();
 		
+		line.append("public static final ");
+		
+		if(EncogArgType.String.name().equals(t) ) {
+			line.append("String");
+			quote = true;
+		} else if(EncogArgType.Int.name().equals(t) ) {
+			line.append("int");
+		} else if(EncogArgType.Float.name().equals(t) ) {
+			line.append("double");
+		} else {
+			throw new GenerationError("Unknown type: " + t);
+		}
+		
+		line.append(' ');
+		line.append(node.getName());
+		
+		line.append(" = ");
+		
+		if( quote ) {
+			line.append("\"");
+		}
+		
+		line.append(node.getArgs().get(0).getValue());
+		
+		if( quote ) {
+			line.append("\"");
+		}
+		
+		line.append(';');
+		
+		addLine(line.toString());		
 	}
 	
 	private void generateNode(EncogProgramNode node) {
